@@ -30,13 +30,11 @@ public class PlayerMovement : MonoBehaviour
         {
             animator.SetBool("Jumping", true);
             jump = true;
-            Debug.Log(jump);
         }
     }
 
     public void OnLanding ()
     {
-        Debug.Log(jump);
         animator.SetBool("Jumping", false);
     }
 
