@@ -61,6 +61,21 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 
+	public void DoKnockback(float knockbackForce)
+    {
+		float knockbackDirection = knockbackForce;
+
+		if (m_FacingRight)
+		{
+			knockbackDirection *= -1;
+		}
+
+		Vector3 targetVelocity = new Vector2(knockbackDirection, m_Rigidbody2D.velocity.y * knockbackForce);
+		// And then smoothing it out and applying it to the character
+		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
+
+	}
+
 	public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
