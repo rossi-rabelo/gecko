@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{E7EF5654-73A7-BC98-5F4F-D56F05FDA079}</ProjectGuid>
+    <ProjectGuid>{58D806CF-27A0-F5B6-4685-24382CC14D9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Eveld.DynamicCamera</AssemblyName>

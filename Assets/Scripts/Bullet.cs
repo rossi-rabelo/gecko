@@ -7,6 +7,8 @@ public class Bullet : MonoBehaviour
     public float speed = 40f;
     public Rigidbody2D bulletReference;
     public int lifeTime = 3;
+    public int bulletDamage = 10;
+
     void Start()
     {
         bulletReference.velocity = transform.right * speed;
@@ -15,11 +17,15 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.name == "Enemy")
+
+        EnemyHealth enemyHealth = collision.GetComponent<EnemyHealth>();
+
+        if (enemyHealth != null)
         {
-            // Enemy take damage
-            // Modify it later to get an Enemy class and invoke a takeDamage function
+
+            enemyHealth.TakeDamage(bulletDamage);
         }
+
         Destroy(gameObject);
     }
 }

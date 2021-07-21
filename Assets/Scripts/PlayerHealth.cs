@@ -21,9 +21,19 @@ public class PlayerHealth : MonoBehaviour
     void Update()
     {
 
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+
     }
 
-    void TakeDamage(int damage)
+    void Die()
+    {
+        Destroy(gameObject);
+    }
+
+    public void TakeDamage(int damage)
     {
         currentHealth -= damage;
 
