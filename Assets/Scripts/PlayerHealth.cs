@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EZCameraShake;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        CameraShaker.Instance.ShakeOnce(6f, 6f, .1f, .1f);
 
         healthBarScript.SetHealth(currentHealth);
     }
