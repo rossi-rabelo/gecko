@@ -2114,7 +2114,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 0
+  invincibleTime: 0.5
+  invincibilityFrames: 0
+  knockbackForce: 100
+  isInvincible: 0
+  isKnockback: 1
   healthBarScript: {fileID: 1479185770}
+  controller: {fileID: 894764494}
 --- !u!114 &894764499
 MonoBehaviour:
   m_ObjectHideFlags: 0
