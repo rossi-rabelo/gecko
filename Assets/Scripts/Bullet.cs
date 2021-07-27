@@ -26,6 +26,9 @@ public class Bullet : MonoBehaviour
             enemyHealth.TakeDamage(bulletDamage);
         }
 
-        Destroy(gameObject);
+        if (collision.gameObject.tag != "Player")
+        {
+            Destroy(gameObject);
+        }
     }
 }

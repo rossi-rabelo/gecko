@@ -5,6 +5,7 @@ using EZCameraShake;
 
 public class PlayerHealth : MonoBehaviour
 {
+    private SpriteRenderer spriteRenderer;
 
     public int maxHealth = 100;
     public int currentHealth;
@@ -17,6 +18,7 @@ public class PlayerHealth : MonoBehaviour
     public bool isInvincible = false;
     public bool isKnockback = false;
 
+
     public HealthBarScript healthBarScript;
     public CharacterController2D controller;
 
@@ -25,6 +27,7 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
         healthBarScript.SetMaxHealth(maxHealth);
+        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -38,10 +41,12 @@ public class PlayerHealth : MonoBehaviour
 
         if (isInvincible)
         {
+            Blink();
             invincibilityFrames += Time.deltaTime;
 
             if (invincibilityFrames >= invincibleTime)
             {
+                spriteRenderer.enabled = true;
                 isInvincible = false;
                 invincibilityFrames = 0f;
             }
@@ -75,6 +80,11 @@ public class PlayerHealth : MonoBehaviour
             isKnockback = true;
             isInvincible = true;
         }
+    }
+
+    void Blink()
+    {
+        spriteRenderer.enabled = !spriteRenderer.enabled;
     }
 
 }

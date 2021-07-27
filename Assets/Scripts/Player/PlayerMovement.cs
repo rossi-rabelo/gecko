@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
 
     float horizontalMove = 0f;
     bool jump = false;
+
+    public bool wallClimbing = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +34,11 @@ public class PlayerMovement : MonoBehaviour
             jump = true;
         }
 
+        if (Input.GetButton("Crouch"))
+        {
+            wallClimbing = true;
+        }
+
     }
 
     public void OnLanding ()
@@ -44,4 +51,5 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
         jump = false;
     }
+
 }

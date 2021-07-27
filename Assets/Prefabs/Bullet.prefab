@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 1479129396606237613}
   - component: {fileID: 3010631080123011188}
   - component: {fileID: 1386077371466123231}
-  - component: {fileID: 1975761634068503445}
   - component: {fileID: 5023991055633940187}
+  - component: {fileID: 4009669879452390421}
   m_Layer: 6
   m_Name: Bullet
   m_TagString: Untagged
@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7513862434494169345}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.3311, y: -2.6494, z: 0}
-  m_LocalScale: {x: 0.3106, y: 0.3013, z: 1}
+  m_LocalPosition: {x: -3.9905, y: -2.8509, z: 0}
+  m_LocalScale: {x: 0.4089684, y: 0.09979734, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -106,22 +106,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!58 &1975761634068503445
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7513862434494169345}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.046985764, y: 0.000000005774025}
-  serializedVersion: 2
-  m_Radius: 0.95301455
 --- !u!114 &5023991055633940187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,3 +120,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 20
   bulletReference: {fileID: 1386077371466123231}
+  lifeTime: 3
+  bulletDamage: 10
+--- !u!70 &4009669879452390421
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7513862434494169345}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.002639568, y: -0.0000000012894773}
+  m_Size: {x: 1.0686332, y: 2.0000048}
+  m_Direction: 1
