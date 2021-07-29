@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{D28671C8-FC09-936D-FFAA-F4BE7D1F3849}</ProjectGuid>
+    <ProjectGuid>{483D06F8-44DE-4F98-5BBC-B6FDC5ECF4FF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Eveld.DynamicCamera.Editor</AssemblyName>
@@ -663,19 +663,17 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.TestRunner.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Eveld.DynamicCamera.csproj">
-      <Project>{E7EF5654-73A7-BC98-5F4F-D56F05FDA079}</Project>
+      <Project>{58D806CF-27A0-F5B6-4685-24382CC14D9C}</Project>
       <Name>Eveld.DynamicCamera</Name>
-    </ProjectReference>
-    <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{F88CBE9E-8782-E570-D745-750FC3D3D184}</Project>
-      <Name>UnityEngine.TestRunner</Name>
-    </ProjectReference>
-    <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{941C13C2-955C-8E33-7E36-0AC205593578}</Project>
-      <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

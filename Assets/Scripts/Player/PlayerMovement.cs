@@ -9,11 +9,15 @@ public class PlayerMovement : MonoBehaviour
     public Animator animator;
 
     public float runSpeed = 40f;
+    public float crawlSpeed = 60f;
 
     float horizontalMove = 0f;
-    bool jump = false;
+    float verticalMove = 0f;
+    public bool jump = false;
+    public bool crouch = false;
 
-    public bool wallClimbing = false;
+    public bool climbing = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,9 +38,9 @@ public class PlayerMovement : MonoBehaviour
             jump = true;
         }
 
-        if (Input.GetButton("Crouch"))
+        if (Input.GetButtonDown("Crouch"))
         {
-            wallClimbing = true;
+            crouch = !crouch;
         }
 
     }
@@ -48,8 +52,28 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, climbing);
         jump = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+
+        if (collision.gameObject.tag == "Wall")
+        {
+            climbing = true;
+        }
+        
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+
+        if (collision.gameObject.tag == "Wall")
+        {
+            climbing = false;
+        }
+
     }
 
 }
