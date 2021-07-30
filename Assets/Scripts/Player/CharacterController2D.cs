@@ -19,8 +19,11 @@ public class CharacterController2D : MonoBehaviour
 	private Rigidbody2D m_Rigidbody2D;
 	public bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
+	
+	private bool isOnWall = false;
 
 	public Transform firePoint;
+	public LayerMask climbable;
 
 	[Header("Events")]
 	[Space]
@@ -37,6 +40,7 @@ public class CharacterController2D : MonoBehaviour
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 
+
 		if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
 
@@ -44,7 +48,12 @@ public class CharacterController2D : MonoBehaviour
 			OnCrouchEvent = new BoolEvent();
 	}
 
-	private void FixedUpdate()
+	private void Start()
+	{
+			
+	}
+
+    private void FixedUpdate()
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
@@ -79,7 +88,7 @@ public class CharacterController2D : MonoBehaviour
 
 	}
 
-	public void Move(float moveHorizontal, bool crouch, bool jump, bool climbing)
+	public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -105,71 +114,27 @@ public class CharacterController2D : MonoBehaviour
 					OnCrouchEvent.Invoke(true);
 				}
 
-				
-				if (m_FacingRight)
-				{
-					RaycastHit2D hit = Physics2D.Raycast(firePoint.position, Vector2.right, 5f);
-					Debug.DrawRay(firePoint.position, Vector2.right * 5f, Color.red);
-
-
-					if (hit && hit.collider != null)
-					{
-						if (hit.collider.CompareTag("Wall") && climbing)
-                        {
-							DirectionalMovement(moveHorizontal, true);
-
-                        } else
-                        {
-							DirectionalMovement(moveHorizontal, false);
-						}
-					}
-					else if (climbing && !m_Grounded)
-					{
-						DirectionalMovement(moveHorizontal, true);
-					}
-					else
-					{
-						DirectionalMovement(moveHorizontal, false);
-					}
-
-				}
-				else
-				{
-					RaycastHit2D hit = Physics2D.Raycast(firePoint.position, Vector2.left, 5f);
-					Debug.DrawRay(firePoint.position, Vector2.left * 5f, Color.red);
-
-
-					if (hit && hit.collider != null)
-					{
-						if (hit.collider.CompareTag("Wall") && climbing)
-						{
-							DirectionalMovement(moveHorizontal, true);
-						}
-						else
-						{
-							DirectionalMovement(moveHorizontal, false);
-						}
-					}
-					else if (climbing && !m_Grounded)
-					{
-						DirectionalMovement(moveHorizontal, true);
-
-					} else 
-					{
-						DirectionalMovement(moveHorizontal, false);
-					}
-
-				}
+				// Reduce the speed by the crouchSpeed multiplier
+				// move *= m_CrouchSpeed;
 
 				// Disable one of the colliders when crouching
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
+
+				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, m_FacingRight ? Vector2.right : Vector2.left, .5f, climbable);
+				Debug.DrawRay(firePoint.position, m_FacingRight ? Vector2.right : Vector2.left * .5f, Color.red);
+
+				if (hit.collider != null)
+				{
+					isOnWall = true;
+				} else
+                {
+					isOnWall = false;
+                }
+
 			}
 			else
 			{
-
-				DirectionalMovement(moveHorizontal, false);
-
 				// Enable the collider when not crouching
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = true;
@@ -181,15 +146,16 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
+			Movement(move, isOnWall);
 
 			// If the input is moving the player right and the player is facing left...
-			if (moveHorizontal > 0 && !m_FacingRight)
+			if (move > 0 && !m_FacingRight)
 			{
 				// ... flip the player.
 				Flip();
 			}
 			// Otherwise if the input is moving the player left and the player is facing right...
-			else if (moveHorizontal < 0 && m_FacingRight)
+			else if (move < 0 && m_FacingRight)
 			{
 				// ... flip the player.
 				Flip();
@@ -204,28 +170,38 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void DirectionalMovement(float moveHorizontal, bool isWall)
+	private void Movement(float move, bool isWall)
     {
-
 		Vector3 targetVelocity;
 
-		if (isWall)
-		{
-			float multiplicatorFactor = m_FacingRight ? -1 : 1;
-			
-			targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, Math.Abs(moveHorizontal) * 10f * multiplicatorFactor);
-			m_Rigidbody2D.gravityScale = 0;
-		}
-		else
-		{
-			// moveHorizontal the character by finding the target velocity
-			targetVelocity = new Vector2(moveHorizontal * 10f, m_Rigidbody2D.velocity.y);
-			m_Rigidbody2D.gravityScale = 3;
+		if (m_FacingRight)
+        {
+			if (isWall)
+            {
+				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f);
+				m_Rigidbody2D.gravityScale = 0;
+			} else
+            {
+				targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.gravityScale = 3;
+			}
+
+        } else
+        {
+			if (isWall)
+			{
+				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f * -1);
+				m_Rigidbody2D.gravityScale = 0;
+			}
+			else
+			{
+				targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.gravityScale = 3;
+			}
 		}
 		// And then smoothing it out and applying it to the character
 		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 	}
-
 	private void Flip()
 	{
 		// Switch the way the player is labelled as facing.
@@ -233,4 +209,5 @@ public class CharacterController2D : MonoBehaviour
 
 		transform.Rotate(0f, 180f, 0f);
 	}
+
 }
