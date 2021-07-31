@@ -20,10 +20,20 @@ public class CharacterController2D : MonoBehaviour
 	public bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
 	
-	private bool isOnWall = false;
+	public bool isOnWall = false;
+	public bool isOnCeiling = false;
+	public bool isTurning = false;
 
 	public Transform firePoint;
 	public LayerMask climbable;
+
+	Quaternion targetRotation;
+
+	public float lerpSpeed;
+	private float lerpPercent = 0f;
+
+	public bool turnLeft = false;
+	public float previousAngle = 0f;
 
 	[Header("Events")]
 	[Space]
@@ -50,7 +60,8 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Start()
 	{
-			
+		targetRotation = transform.rotation;
+		Debug.Log(targetRotation);
 	}
 
     private void FixedUpdate()
@@ -88,7 +99,7 @@ public class CharacterController2D : MonoBehaviour
 
 	}
 
-	public void Move(float move, bool crouch, bool jump)
+	public void Move(float move, bool crouch, bool jump, bool climbing, bool ceiling)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -121,16 +132,52 @@ public class CharacterController2D : MonoBehaviour
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
 
-				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, m_FacingRight ? Vector2.right : Vector2.left, .5f, climbable);
-				Debug.DrawRay(firePoint.position, m_FacingRight ? Vector2.right : Vector2.left * .5f, Color.red);
+				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, firePoint.right, .5f, climbable);
+				Debug.DrawRay(firePoint.position, firePoint.right, Color.red);
 
 				if (hit.collider != null)
 				{
-					isOnWall = true;
-				} else
+					if (hit.collider != null)
+                    {
+						if (hit.collider.CompareTag("Ground"))
+                        {
+							isOnWall = false;
+							isTurning = true;
+							turnLeft = false;
+						}
+
+						if (hit.collider.CompareTag("Wall"))
+						{
+							isOnWall = true;
+							isTurning = true;
+							turnLeft = true;
+						}
+
+						if (hit.collider.CompareTag("Ceiling"))
+						{
+							isOnCeiling = true;
+							isTurning = true;
+							turnLeft = true;
+						}
+					}
+				}
+				else
                 {
-					isOnWall = false;
-                }
+					if (!climbing)
+                    {
+						isOnWall = false;
+					}
+
+					if (!ceiling)
+                    {
+						isOnCeiling = false;
+                    }
+				}
+
+				if(isTurning)
+                {
+					Turn();
+				}
 
 			}
 			else
@@ -170,6 +217,23 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
+	private void Turn()
+    {
+		float degree = previousAngle + 90;
+		Debug.Log(degree);
+
+		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
+
+		Quaternion target = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, degree);
+		transform.rotation = Quaternion.Slerp(transform.rotation, target, lerpPercent);
+
+		if (lerpPercent >= 1f)
+		{
+			isTurning = false;
+			previousAngle = transform.eulerAngles.z;
+		}
+	}
+
 	private void Movement(float move, bool isWall)
     {
 		Vector3 targetVelocity;
@@ -178,12 +242,21 @@ public class CharacterController2D : MonoBehaviour
         {
 			if (isWall)
             {
-				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f);
+				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * -10f);
 				m_Rigidbody2D.gravityScale = 0;
 			} else
             {
-				targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
-				m_Rigidbody2D.gravityScale = 3;
+				if (isOnCeiling)
+                {
+					m_Rigidbody2D.gravityScale = 0;
+					targetVelocity = new Vector2(move * -10f, m_Rigidbody2D.velocity.y);
+
+				} else
+                {
+					m_Rigidbody2D.gravityScale = 3;
+					targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+				}
+
 			}
 
         } else
@@ -195,8 +268,16 @@ public class CharacterController2D : MonoBehaviour
 			}
 			else
 			{
-				targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
-				m_Rigidbody2D.gravityScale = 3;
+				if (isOnCeiling)
+				{
+					m_Rigidbody2D.gravityScale = 0;
+					targetVelocity = new Vector2(move * -10f, m_Rigidbody2D.velocity.y);
+				}
+				else
+				{
+					m_Rigidbody2D.gravityScale = 3;
+					targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+				}
 			}
 		}
 		// And then smoothing it out and applying it to the character
