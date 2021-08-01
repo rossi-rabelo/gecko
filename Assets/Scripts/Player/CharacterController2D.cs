@@ -32,7 +32,8 @@ public class CharacterController2D : MonoBehaviour
 	public float lerpSpeed;
 	private float lerpPercent = 0f;
 
-	public bool turnLeft = false;
+	public bool isLeft = false;
+	public bool hitGround = false;
 	public float previousAngle = 0f;
 
 	[Header("Events")]
@@ -132,32 +133,74 @@ public class CharacterController2D : MonoBehaviour
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
 
-				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, firePoint.right, .5f, climbable);
-				Debug.DrawRay(firePoint.position, firePoint.right, Color.red);
+				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, firePoint.right, .2f, climbable);
+				Debug.DrawRay(firePoint.position, firePoint.right * .2f, Color.red);
+
+				if (!m_FacingRight && m_Grounded)
+				{
+					isLeft = true;
+				}
+				else if (m_FacingRight && m_Grounded)
+				{
+					isLeft = false;
+				}
+
+				if (!m_FacingRight && isOnCeiling)
+				{
+					isLeft = true;
+				}
+				else if (m_FacingRight && isOnCeiling)
+				{
+					isLeft = false;
+				}
 
 				if (hit.collider != null)
 				{
 					if (hit.collider != null)
                     {
+
 						if (hit.collider.CompareTag("Ground"))
                         {
 							isOnWall = false;
 							isTurning = true;
-							turnLeft = false;
+							hitGround = true;
+
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
+							else
+							{
+								isLeft = false;
+							}
+
+						} else
+                        {
+							hitGround = false;
 						}
 
 						if (hit.collider.CompareTag("Wall"))
 						{
 							isOnWall = true;
 							isTurning = true;
-							turnLeft = true;
+
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
 						}
 
 						if (hit.collider.CompareTag("Ceiling"))
 						{
 							isOnCeiling = true;
+							isOnWall = false;
 							isTurning = true;
-							turnLeft = true;
+
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
+							
 						}
 					}
 				}
@@ -193,7 +236,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move, isOnWall);
+			Movement(move, isOnWall, isLeft);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -219,8 +262,25 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Turn()
     {
-		float degree = previousAngle + 90;
-		Debug.Log(degree);
+		float direction = 90;
+		float degree = direction;
+		if (isLeft)
+        {
+			degree = previousAngle + direction;
+			degree = degree % 360;
+			Debug.Log(degree);
+		} else
+        {
+			degree = previousAngle + direction;
+			degree = degree % 360;
+			Debug.Log(degree);
+		}
+
+		if (hitGround)
+        {
+			degree = 0;
+			Debug.Log(degree);
+		}
 
 		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
 
@@ -230,20 +290,30 @@ public class CharacterController2D : MonoBehaviour
 		if (lerpPercent >= 1f)
 		{
 			isTurning = false;
-			previousAngle = transform.eulerAngles.z;
+			previousAngle = transform.eulerAngles.z % 360;
 		}
 	}
 
-	private void Movement(float move, bool isWall)
+	private void Movement(float move, bool isWall, bool isLeft)
     {
 		Vector3 targetVelocity;
+
+		float switchChange = isLeft ? 1 : -1;
 
 		if (m_FacingRight)
         {
 			if (isWall)
             {
-				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * -10f);
-				m_Rigidbody2D.gravityScale = 0;
+				if (previousAngle > 0 && previousAngle < 180)
+				{
+					targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * -10f * switchChange);
+					m_Rigidbody2D.gravityScale = 0;
+				}
+				else
+				{
+					targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f * switchChange);
+					m_Rigidbody2D.gravityScale = 0;
+				}
 			} else
             {
 				if (isOnCeiling)
@@ -263,8 +333,15 @@ public class CharacterController2D : MonoBehaviour
         {
 			if (isWall)
 			{
-				targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f * -1);
-				m_Rigidbody2D.gravityScale = 0;
+				if (previousAngle > 0 && previousAngle < 180)
+                {
+					targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * -10f * switchChange);
+					m_Rigidbody2D.gravityScale = 0;
+				} else
+                {
+					targetVelocity = new Vector2(m_Rigidbody2D.velocity.x, move * 10f * switchChange);
+					m_Rigidbody2D.gravityScale = 0;
+				}
 			}
 			else
 			{
