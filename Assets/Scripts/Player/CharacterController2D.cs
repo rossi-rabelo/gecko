@@ -36,6 +36,9 @@ public class CharacterController2D : MonoBehaviour
 	public bool hitGround = false;
 	public float previousAngle = 0f;
 
+	public Vector2 playerNormal = new Vector2(0f, 1f);
+	public Vector2 hitNormal;
+
 	[Header("Events")]
 	[Space]
 
@@ -61,8 +64,8 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Start()
 	{
+		hitNormal = playerNormal;
 		targetRotation = transform.rotation;
-		Debug.Log(targetRotation);
 	}
 
     private void FixedUpdate()
@@ -156,52 +159,54 @@ public class CharacterController2D : MonoBehaviour
 
 				if (hit.collider != null)
 				{
-					if (hit.collider != null)
+
+					if (!isTurning)
                     {
+						hitNormal = hit.normal;
+					}
 
-						if (hit.collider.CompareTag("Ground"))
-                        {
-							isOnWall = false;
-							isTurning = true;
-							hitGround = true;
+					if (hit.collider.CompareTag("Ground"))
+                    {
+						isOnWall = false;
+						isTurning = true;
+						hitGround = true;
 
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
-							else
-							{
-								isLeft = false;
-							}
-
-						} else
-                        {
-							hitGround = false;
+						if (!m_FacingRight)
+						{
+							isLeft = true;
+						}
+						else
+						{
+							isLeft = false;
 						}
 
-						if (hit.collider.CompareTag("Wall"))
-						{
-							isOnWall = true;
-							isTurning = true;
+					} else
+                    {
+						hitGround = false;
+					}
 
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
+					if (hit.collider.CompareTag("Wall"))
+					{
+						isOnWall = true;
+						isTurning = true;
+
+						if (!m_FacingRight)
+						{
+							isLeft = true;
 						}
+					}
 
-						if (hit.collider.CompareTag("Ceiling"))
+					if (hit.collider.CompareTag("Ceiling"))
+					{
+						isOnCeiling = true;
+						isOnWall = false;
+						isTurning = true;
+
+						if (!m_FacingRight)
 						{
-							isOnCeiling = true;
-							isOnWall = false;
-							isTurning = true;
-
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
+							isLeft = true;
+						}
 							
-						}
 					}
 				}
 				else
@@ -262,24 +267,17 @@ public class CharacterController2D : MonoBehaviour
 
 	private void Turn()
     {
-		float direction = 90;
-		float degree = direction;
-		if (isLeft)
-        {
-			degree = previousAngle + direction;
-			degree = degree % 360;
-			Debug.Log(degree);
-		} else
-        {
-			degree = previousAngle + direction;
-			degree = degree % 360;
-			Debug.Log(degree);
-		}
+		// float direction = 90;
+		float direction = Vector2.Angle(playerNormal, hitNormal);
+
+		float degree = previousAngle + direction;
+		degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
+
+		//degree = degree % 360;
 
 		if (hitGround)
         {
 			degree = 0;
-			Debug.Log(degree);
 		}
 
 		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
@@ -291,6 +289,7 @@ public class CharacterController2D : MonoBehaviour
 		{
 			isTurning = false;
 			previousAngle = transform.eulerAngles.z % 360;
+			playerNormal = hitNormal;
 		}
 	}
 

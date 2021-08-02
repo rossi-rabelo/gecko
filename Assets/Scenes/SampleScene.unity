@@ -358,7 +358,7 @@ GameObject:
   - component: {fileID: 187240809}
   - component: {fileID: 187240811}
   - component: {fileID: 187240810}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Wall (1)
   m_TagString: Ceiling
   m_Icon: {fileID: 0}
@@ -2141,11 +2141,13 @@ MonoBehaviour:
   firePoint: {fileID: 424950896}
   climbable:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1664
   lerpSpeed: 5
   isLeft: 0
   hitGround: 0
   previousAngle: 0
+  playerNormal: {x: 0, y: 1}
+  hitNormal: {x: 0, y: 0}
   OnLandEvent:
     m_PersistentCalls:
       m_Calls:
@@ -2395,7 +2397,7 @@ GameObject:
   - component: {fileID: 914050930}
   - component: {fileID: 914050932}
   - component: {fileID: 914050931}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -3173,7 +3175,7 @@ GameObject:
   - component: {fileID: 1427952555}
   - component: {fileID: 1427952557}
   - component: {fileID: 1427952556}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (2)
   m_TagString: Wall
   m_Icon: {fileID: 0}
