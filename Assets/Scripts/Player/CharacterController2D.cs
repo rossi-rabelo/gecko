@@ -115,6 +115,17 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 
+		/*
+		if (Math.Abs(Input.GetAxisRaw("Horizontal")) > 0)
+		{
+			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
+			float radiandos = (angleNormal + 90) * Mathf.Deg2Rad;
+			Vector2 direction = new Vector2(Mathf.Cos(radiandos) * 40f * Time.fixedDeltaTime, Mathf.Sin(radiandos) * 40f * Time.fixedDeltaTime);
+
+			//Debug.Log("Direção " + direction);
+		}
+		*/
+
 
 		//only control the player if grounded or airControl is turned on
 		if (m_Grounded || m_AirControl)
@@ -168,6 +179,7 @@ public class CharacterController2D : MonoBehaviour
 					if (hit.collider.CompareTag("Ground"))
                     {
 						isOnWall = false;
+						isOnCeiling = false;
 						isTurning = true;
 						hitGround = true;
 
@@ -187,6 +199,7 @@ public class CharacterController2D : MonoBehaviour
 
 					if (hit.collider.CompareTag("Wall"))
 					{
+						isOnCeiling = false;
 						isOnWall = true;
 						isTurning = true;
 
@@ -206,7 +219,11 @@ public class CharacterController2D : MonoBehaviour
 						{
 							isLeft = true;
 						}
-							
+						else
+						{
+							isLeft = false;
+						}
+
 					}
 				}
 				else
@@ -271,14 +288,19 @@ public class CharacterController2D : MonoBehaviour
 		float direction = Vector2.Angle(playerNormal, hitNormal);
 
 		float degree = previousAngle + direction;
-		degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
+		// degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
 
-		//degree = degree % 360;
+		degree = degree % 360;
 
 		if (hitGround)
         {
 			degree = 0;
 		}
+
+		if (isOnCeiling)
+        {
+			degree = 180;
+        }
 
 		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
 
@@ -356,6 +378,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 		}
+
 		// And then smoothing it out and applying it to the character
 		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 	}
