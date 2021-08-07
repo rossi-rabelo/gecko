@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     public float crawlSpeed = 60f;
 
     float horizontalMove = 0f;
-    float verticalMove = 0f;
     public bool jump = false;
     public bool crouch = false;
 

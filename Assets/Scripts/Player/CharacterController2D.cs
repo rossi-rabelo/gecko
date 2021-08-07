@@ -24,7 +24,7 @@ public class CharacterController2D : MonoBehaviour
 	public bool isOnCeiling = false;
 	public bool isTurning = false;
 
-	public Transform firePoint;
+	public Transform wallCheck;
 	public LayerMask climbable;
 
 	Quaternion targetRotation;
@@ -115,18 +115,7 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 
-		/*
-		if (Math.Abs(Input.GetAxisRaw("Horizontal")) > 0)
-		{
-			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
-			float radiandos = (angleNormal + 90) * Mathf.Deg2Rad;
-			Vector2 direction = new Vector2(Mathf.Cos(radiandos) * 40f * Time.fixedDeltaTime, Mathf.Sin(radiandos) * 40f * Time.fixedDeltaTime);
-
-			//Debug.Log("Direção " + direction);
-		}
-		*/
-
-
+		
 		//only control the player if grounded or airControl is turned on
 		if (m_Grounded || m_AirControl)
 		{
@@ -147,8 +136,8 @@ public class CharacterController2D : MonoBehaviour
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
 
-				RaycastHit2D hit = Physics2D.Raycast(firePoint.position, firePoint.right, .2f, climbable);
-				Debug.DrawRay(firePoint.position, firePoint.right * .2f, Color.red);
+				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, .05f, climbable);
+				Debug.DrawRay(wallCheck.position, wallCheck.right * .05f, Color.red);
 
 				if (!m_FacingRight && m_Grounded)
 				{
@@ -171,59 +160,64 @@ public class CharacterController2D : MonoBehaviour
 				if (hit.collider != null)
 				{
 
-					if (!isTurning)
-                    {
-						hitNormal = hit.normal;
-					}
+					if (!hit.collider.CompareTag("Player"))
+					{
 
-					if (hit.collider.CompareTag("Ground"))
-                    {
-						isOnWall = false;
-						isOnCeiling = false;
-						isTurning = true;
-						hitGround = true;
-
-						if (!m_FacingRight)
+						if (!isTurning)
 						{
-							isLeft = true;
+							hitNormal = hit.normal;
+						}
+
+						if (hit.collider.CompareTag("Ground"))
+						{
+							isOnWall = false;
+							isOnCeiling = false;
+							isTurning = true;
+							hitGround = true;
+
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
+							else
+							{
+								isLeft = false;
+							}
+
 						}
 						else
 						{
-							isLeft = false;
+							hitGround = false;
 						}
 
-					} else
-                    {
-						hitGround = false;
-					}
-
-					if (hit.collider.CompareTag("Wall"))
-					{
-						isOnCeiling = false;
-						isOnWall = true;
-						isTurning = true;
-
-						if (!m_FacingRight)
+						if (hit.collider.CompareTag("Wall"))
 						{
-							isLeft = true;
+							isOnCeiling = false;
+							isOnWall = true;
+							isTurning = true;
+
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
 						}
-					}
 
-					if (hit.collider.CompareTag("Ceiling"))
-					{
-						isOnCeiling = true;
-						isOnWall = false;
-						isTurning = true;
-
-						if (!m_FacingRight)
+						if (hit.collider.CompareTag("Ceiling"))
 						{
-							isLeft = true;
-						}
-						else
-						{
-							isLeft = false;
-						}
+							isOnCeiling = true;
+							isOnWall = false;
+							isTurning = true;
 
+							if (!m_FacingRight)
+							{
+								isLeft = true;
+							}
+							else
+							{
+								isLeft = false;
+							}
+
+						}
 					}
 				}
 				else
@@ -258,7 +252,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move, isOnWall, isLeft);
+			Movement(move, isOnWall, isLeft, climbing, ceiling);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -286,6 +280,8 @@ public class CharacterController2D : MonoBehaviour
     {
 		// float direction = 90;
 		float direction = Vector2.Angle(playerNormal, hitNormal);
+
+		//m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, -hitNormal * 10f, ref m_Velocity, m_MovementSmoothing);
 
 		float degree = previousAngle + direction;
 		// degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
@@ -315,10 +311,12 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void Movement(float move, bool isWall, bool isLeft)
+	private void Movement(float move, bool isWall, bool isLeft, bool climbing, bool ceiling)
     {
+		
 		Vector3 targetVelocity;
 
+		/*
 		float switchChange = isLeft ? 1 : -1;
 
 		if (m_FacingRight)
@@ -378,9 +376,40 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 		}
+		*/
 
-		// And then smoothing it out and applying it to the character
+		if (isOnWall || isOnCeiling || climbing || ceiling)
+		{
+			targetVelocity = new Vector2(0, 0);
+			m_Rigidbody2D.gravityScale = 0;
+
+		}
+		else
+		{
+			targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+			m_Rigidbody2D.gravityScale = 3;
+		}
+
+		if (move > 0)
+		{
+			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
+			float radiandos = (angleNormal - 90) * Mathf.Deg2Rad;
+			targetVelocity = new Vector2(Mathf.Cos(radiandos), Mathf.Sin(radiandos)) * Math.Abs(move) * 10f;
+
+
+		}
+		else if (move < 0)
+		{
+			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
+			float radiandos = (angleNormal + 90) * Mathf.Deg2Rad;
+			targetVelocity = new Vector2(Mathf.Cos(radiandos), Mathf.Sin(radiandos)) * Math.Abs(move) * 10f;
+
+		}
+
+		targetVelocity = new Vector2(Mathf.Clamp(targetVelocity.x, -40, 40), Mathf.Clamp(targetVelocity.y, -40, 40));
+
 		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
+
 	}
 	private void Flip()
 	{
