@@ -15,9 +15,6 @@ public class PlayerMovement : MonoBehaviour
     public bool jump = false;
     public bool crouch = false;
 
-    public bool climbing = false;
-    public bool ceiling = false;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -53,38 +50,8 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
 
-        controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, climbing, ceiling);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
         jump = false;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-
-        if (collision.gameObject.tag == "Wall")
-        {
-            climbing = true;
-        }
-
-        if (collision.gameObject.tag == "Ceiling")
-        {
-            ceiling = true;
-        }
-
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-
-        if (collision.gameObject.tag == "Wall")
-        {
-            climbing = false;
-        }
-
-        if (collision.gameObject.tag == "Ceiling")
-        {
-            ceiling = false;
-        }
-
     }
 
 }

@@ -28,15 +28,18 @@ public class Weapon : MonoBehaviour
         }
 
 
-        if (Input.GetButtonUp("Fire1") && !isInCooldown)
+        if (Input.GetButtonUp("Fire1"))
         {
-            if (chargeTimeCount >= chargeTime)
+            if (!isInCooldown)
             {
-                ChargedShoot();
-            }
-            else if (!isInCooldown)
-            {
-                Shoot();
+                if (chargeTimeCount >= chargeTime)
+                {
+                    ChargedShoot();
+                }
+                else if (!isInCooldown)
+                {
+                    Shoot();
+                }
             }
 
             isCharging = false;

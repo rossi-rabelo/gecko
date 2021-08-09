@@ -35,9 +35,15 @@ public class CharacterController2D : MonoBehaviour
 	public bool isLeft = false;
 	public bool hitGround = false;
 	public float previousAngle = 0f;
+	public float actualAngle = 0f;
 
 	public Vector2 playerNormal = new Vector2(0f, 1f);
 	public Vector2 hitNormal;
+
+	public bool climbing = false;
+	public bool ceiling = false;
+
+	public bool changedDirectionMidAir = false; 
 
 	[Header("Events")]
 	[Space]
@@ -103,7 +109,7 @@ public class CharacterController2D : MonoBehaviour
 
 	}
 
-	public void Move(float move, bool crouch, bool jump, bool climbing, bool ceiling)
+	public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -136,8 +142,8 @@ public class CharacterController2D : MonoBehaviour
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
 
-				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, .05f, climbable);
-				Debug.DrawRay(wallCheck.position, wallCheck.right * .05f, Color.red);
+				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, .8f, climbable);
+				Debug.DrawRay(wallCheck.position, wallCheck.right * .8f, Color.red);
 
 				if (!m_FacingRight && m_Grounded)
 				{
@@ -174,6 +180,9 @@ public class CharacterController2D : MonoBehaviour
 							isOnCeiling = false;
 							isTurning = true;
 							hitGround = true;
+
+							ceiling = false;
+							climbing = false;
 
 							if (!m_FacingRight)
 							{
@@ -222,12 +231,12 @@ public class CharacterController2D : MonoBehaviour
 				}
 				else
                 {
-					if (!climbing)
+					if (!climbing && !isTurning)
                     {
 						isOnWall = false;
 					}
 
-					if (!ceiling)
+					if (!ceiling && !isTurning)
                     {
 						isOnCeiling = false;
                     }
@@ -237,6 +246,16 @@ public class CharacterController2D : MonoBehaviour
                 {
 					Turn();
 				}
+
+				if (climbing)
+                {
+					ceiling = false;
+                }
+
+				if (ceiling)
+                {
+					climbing = false;
+                }
 
 			}
 			else
@@ -267,6 +286,8 @@ public class CharacterController2D : MonoBehaviour
 				Flip();
 			}
 		}
+
+
 		// If the player should jump...
 		if (m_Grounded && jump)
 		{
@@ -274,29 +295,29 @@ public class CharacterController2D : MonoBehaviour
 			m_Grounded = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 		}
+
 	}
 
 	private void Turn()
     {
+		previousAngle = transform.eulerAngles.z;
+
 		// float direction = 90;
 		float direction = Vector2.Angle(playerNormal, hitNormal);
 
 		//m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, -hitNormal * 10f, ref m_Velocity, m_MovementSmoothing);
 
-		float degree = previousAngle + direction;
+		float degree = actualAngle + direction;
+
 		// degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
-
-		degree = degree % 360;
-
+		
+		
 		if (hitGround)
         {
 			degree = 0;
 		}
 
-		if (isOnCeiling)
-        {
-			degree = 180;
-        }
+		
 
 		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
 
@@ -306,7 +327,7 @@ public class CharacterController2D : MonoBehaviour
 		if (lerpPercent >= 1f)
 		{
 			isTurning = false;
-			previousAngle = transform.eulerAngles.z % 360;
+			actualAngle = transform.eulerAngles.z;
 			playerNormal = hitNormal;
 		}
 	}
@@ -380,14 +401,22 @@ public class CharacterController2D : MonoBehaviour
 
 		if (isOnWall || isOnCeiling || climbing || ceiling)
 		{
+		
 			targetVelocity = new Vector2(0, 0);
 			m_Rigidbody2D.gravityScale = 0;
 
 		}
 		else
 		{
-			targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
-			m_Rigidbody2D.gravityScale = 3;
+			if (!isTurning)
+			{
+				targetVelocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.gravityScale = 3;
+			} else
+            {
+				targetVelocity = new Vector2(0, 0);
+				m_Rigidbody2D.gravityScale = 0;
+			}
 		}
 
 		if (move > 0)
@@ -408,6 +437,7 @@ public class CharacterController2D : MonoBehaviour
 
 		targetVelocity = new Vector2(Mathf.Clamp(targetVelocity.x, -40, 40), Mathf.Clamp(targetVelocity.y, -40, 40));
 
+
 		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 
 	}
@@ -417,6 +447,21 @@ public class CharacterController2D : MonoBehaviour
 		m_FacingRight = !m_FacingRight;
 
 		transform.Rotate(0f, 180f, 0f);
+	}
+
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+
+		if (collision.gameObject.tag == "Wall")
+		{
+			climbing = true;
+		}
+
+		if (collision.gameObject.tag == "Ceiling")
+		{
+			ceiling = true;
+		}
+
 	}
 
 }
