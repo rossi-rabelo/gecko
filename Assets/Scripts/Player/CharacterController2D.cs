@@ -38,6 +38,7 @@ public class CharacterController2D : MonoBehaviour
 	public Vector2 hitNormal;
 
 	public bool climbing = false;
+	public bool jumping = false;
 
 	public bool changedFromLeft = false;
 	public bool changedFromRight = false;
@@ -229,7 +230,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move, jump);
+			Movement(move);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -252,7 +253,13 @@ public class CharacterController2D : MonoBehaviour
 			// Add a vertical force to the player.
 			m_Grounded = false;
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+			jumping = true;
 		}
+
+		if (m_Grounded && !jump && jumping)
+        {
+			jumping = false;
+        }
 
 	}
 
@@ -290,7 +297,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void Movement(float move, bool jump)
+	private void Movement(float move)
     {
 		
 		Vector2 targetVelocity;
@@ -377,11 +384,13 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 
+
 		if (move > 0)
 		{
 			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
 			float radiandos = (angleNormal - 90) * Mathf.Deg2Rad;
-			targetVelocity = new Vector2(Mathf.Cos(radiandos), Mathf.Sin(radiandos)) * Math.Abs(move) * 10f;
+			float jumpVelocity = jumping ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
+			targetVelocity = new Vector2(Mathf.Cos(radiandos) * Math.Abs(move) * 10f, jumpVelocity);
 
 
 		}
@@ -389,7 +398,8 @@ public class CharacterController2D : MonoBehaviour
 		{
 			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
 			float radiandos = (angleNormal + 90) * Mathf.Deg2Rad;
-			targetVelocity = new Vector2(Mathf.Cos(radiandos), Mathf.Sin(radiandos)) * Math.Abs(move) * 10f;
+			float jumpVelocity = jumping ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
+			targetVelocity = new Vector2(Mathf.Cos(radiandos) * Math.Abs(move) * 10f, jumpVelocity);
 
 		}
 

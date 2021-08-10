@@ -2433,7 +2433,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 894764489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -27.4, y: -0.2, z: 0}
+  m_LocalPosition: {x: -7.5, y: -0.2, z: 0}
   m_LocalScale: {x: 7.963534, y: 8.2065325, z: 1}
   m_Children:
   - {fileID: 1477276969}
@@ -2481,6 +2481,7 @@ MonoBehaviour:
   playerNormal: {x: 0, y: 1}
   hitNormal: {x: 0, y: 0}
   climbing: 0
+  jumping: 0
   changedFromLeft: 0
   changedFromRight: 0
   OnLandEvent:
