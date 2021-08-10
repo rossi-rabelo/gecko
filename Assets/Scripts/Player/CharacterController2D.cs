@@ -138,8 +138,8 @@ public class CharacterController2D : MonoBehaviour
 				if (m_CrouchDisableCollider != null)
 					m_CrouchDisableCollider.enabled = false;
 
-				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, .8f, climbable);
-				Debug.DrawRay(wallCheck.position, wallCheck.right * .8f, Color.red);
+				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, 1f, climbable);
+				Debug.DrawRay(wallCheck.position, wallCheck.right * 1f, Color.red);
 
 				if (!m_FacingRight && m_Grounded)
 				{
@@ -155,17 +155,17 @@ public class CharacterController2D : MonoBehaviour
 					changedFromLeft = true;
 					changedFromRight = false;
 
-				} else
-                {
-					changedFromLeft = false;
-                }
+				}
 
 				if (!m_FacingRight && !isLeft)
                 {
 					changedFromRight = true;
 					changedFromLeft = false;
-				} else
+				}
+
+				if (m_Grounded)
                 {
+					changedFromLeft = false;
 					changedFromRight = false;
 				}
 
@@ -229,7 +229,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move, isOnWall);
+			Movement(move, jump);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -267,8 +267,6 @@ public class CharacterController2D : MonoBehaviour
 
 		float degree = changedFromLeft || changedFromRight ? (actualAngle - direction) * -1 : actualAngle + direction;
 
-		Debug.Log(degree);
-
 		// degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
 		
 		
@@ -292,10 +290,10 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void Movement(float move, bool isWall)
+	private void Movement(float move, bool jump)
     {
 		
-		Vector3 targetVelocity;
+		Vector2 targetVelocity;
 
 		/*
 		float switchChange = isLeft ? 1 : -1;
@@ -396,7 +394,6 @@ public class CharacterController2D : MonoBehaviour
 		}
 
 		targetVelocity = new Vector2(Mathf.Clamp(targetVelocity.x, -40, 40), Mathf.Clamp(targetVelocity.y, -40, 40));
-
 
 		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 
