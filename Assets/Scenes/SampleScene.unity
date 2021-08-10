@@ -467,9 +467,9 @@ GameObject:
   - component: {fileID: 177372249}
   - component: {fileID: 177372251}
   - component: {fileID: 177372250}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: Wall (5)
-  m_TagString: Ceiling
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -576,9 +576,9 @@ GameObject:
   - component: {fileID: 187240809}
   - component: {fileID: 187240811}
   - component: {fileID: 187240810}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: Wall (1)
-  m_TagString: Ceiling
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2214,9 +2214,9 @@ GameObject:
   - component: {fileID: 882269410}
   - component: {fileID: 882269412}
   - component: {fileID: 882269411}
-  m_Layer: 10
+  m_Layer: 9
   m_Name: Wall (4)
-  m_TagString: Ceiling
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2433,7 +2433,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 894764489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.9, y: -0.2, z: 0}
+  m_LocalPosition: {x: 1.8, y: -0.2, z: 0}
   m_LocalScale: {x: 7.963534, y: 8.2065325, z: 1}
   m_Children:
   - {fileID: 1477276969}
@@ -2468,7 +2468,6 @@ MonoBehaviour:
   m_Grounded: 0
   m_FacingRight: 1
   isOnWall: 0
-  isOnCeiling: 0
   isTurning: 0
   wallCheck: {fileID: 1104526641}
   climbable:
@@ -2482,7 +2481,6 @@ MonoBehaviour:
   playerNormal: {x: 0, y: 1}
   hitNormal: {x: 0, y: 0}
   climbing: 0
-  ceiling: 0
   changedFromLeft: 0
   changedFromRight: 0
   OnLandEvent:

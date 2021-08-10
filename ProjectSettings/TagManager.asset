@@ -7,7 +7,6 @@ TagManager:
   - Enemy
   - Wall
   - Ground
-  - Ceiling
   layers:
   - Default
   - TransparentFX
@@ -19,7 +18,7 @@ TagManager:
   - Ground
   - Background
   - Wall
-  - Ceiling
+  - 
   - 
   - 
   - 

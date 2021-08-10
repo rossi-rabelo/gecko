@@ -21,7 +21,6 @@ public class CharacterController2D : MonoBehaviour
 	private Vector3 m_Velocity = Vector3.zero;
 	
 	public bool isOnWall = false;
-	public bool isOnCeiling = false;
 	public bool isTurning = false;
 
 	public Transform wallCheck;
@@ -39,7 +38,6 @@ public class CharacterController2D : MonoBehaviour
 	public Vector2 hitNormal;
 
 	public bool climbing = false;
-	public bool ceiling = false;
 
 	public bool changedFromLeft = false;
 	public bool changedFromRight = false;
@@ -185,11 +183,9 @@ public class CharacterController2D : MonoBehaviour
 						if (hit.collider.CompareTag("Ground"))
 						{
 							isOnWall = false;
-							isOnCeiling = false;
 							isTurning = true;
 							hitGround = true;
 
-							ceiling = false;
 							climbing = false;
 
 						}
@@ -200,17 +196,9 @@ public class CharacterController2D : MonoBehaviour
 
 						if (hit.collider.CompareTag("Wall"))
 						{
-							isOnCeiling = false;
 							isOnWall = true;
 							isTurning = true;
 
-						}
-
-						if (hit.collider.CompareTag("Ceiling"))
-						{
-							isOnCeiling = true;
-							isOnWall = false;
-							isTurning = true;
 						}
 					}
 				}
@@ -220,27 +208,12 @@ public class CharacterController2D : MonoBehaviour
                     {
 						isOnWall = false;
 					}
-
-					if (!ceiling && !isTurning)
-                    {
-						isOnCeiling = false;
-                    }
 				}
 
 				if(isTurning)
                 {
 					Turn();
 				}
-
-				if (climbing)
-                {
-					ceiling = false;
-                }
-
-				if (ceiling)
-                {
-					climbing = false;
-                }
 
 			}
 			else
@@ -386,7 +359,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 		*/
 
-		if (isOnWall || isOnCeiling || climbing || ceiling)
+		if (isOnWall || climbing)
 		{
 		
 			targetVelocity = new Vector2(0, 0);
@@ -442,11 +415,6 @@ public class CharacterController2D : MonoBehaviour
 		if (collision.gameObject.tag == "Wall")
 		{
 			climbing = true;
-		}
-
-		if (collision.gameObject.tag == "Ceiling")
-		{
-			ceiling = true;
 		}
 
 	}
