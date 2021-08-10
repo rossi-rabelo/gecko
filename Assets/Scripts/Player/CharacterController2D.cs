@@ -27,8 +27,6 @@ public class CharacterController2D : MonoBehaviour
 	public Transform wallCheck;
 	public LayerMask climbable;
 
-	Quaternion targetRotation;
-
 	public float lerpSpeed;
 	private float lerpPercent = 0f;
 
@@ -43,7 +41,8 @@ public class CharacterController2D : MonoBehaviour
 	public bool climbing = false;
 	public bool ceiling = false;
 
-	public bool changedDirectionMidAir = false; 
+	public bool changedFromLeft = false;
+	public bool changedFromRight = false;
 
 	[Header("Events")]
 	[Space]
@@ -71,7 +70,6 @@ public class CharacterController2D : MonoBehaviour
 	private void Start()
 	{
 		hitNormal = playerNormal;
-		targetRotation = transform.rotation;
 	}
 
     private void FixedUpdate()
@@ -154,13 +152,23 @@ public class CharacterController2D : MonoBehaviour
 					isLeft = false;
 				}
 
-				if (!m_FacingRight && isOnCeiling)
-				{
-					isLeft = true;
-				}
-				else if (m_FacingRight && isOnCeiling)
-				{
-					isLeft = false;
+				if (m_FacingRight && isLeft)
+                {
+					changedFromLeft = true;
+					changedFromRight = false;
+
+				} else
+                {
+					changedFromLeft = false;
+                }
+
+				if (!m_FacingRight && !isLeft)
+                {
+					changedFromRight = true;
+					changedFromLeft = false;
+				} else
+                {
+					changedFromRight = false;
 				}
 
 				if (hit.collider != null)
@@ -184,15 +192,6 @@ public class CharacterController2D : MonoBehaviour
 							ceiling = false;
 							climbing = false;
 
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
-							else
-							{
-								isLeft = false;
-							}
-
 						}
 						else
 						{
@@ -205,10 +204,6 @@ public class CharacterController2D : MonoBehaviour
 							isOnWall = true;
 							isTurning = true;
 
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
 						}
 
 						if (hit.collider.CompareTag("Ceiling"))
@@ -216,16 +211,6 @@ public class CharacterController2D : MonoBehaviour
 							isOnCeiling = true;
 							isOnWall = false;
 							isTurning = true;
-
-							if (!m_FacingRight)
-							{
-								isLeft = true;
-							}
-							else
-							{
-								isLeft = false;
-							}
-
 						}
 					}
 				}
@@ -271,7 +256,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move, isOnWall, isLeft, climbing, ceiling);
+			Movement(move, isOnWall);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -307,7 +292,9 @@ public class CharacterController2D : MonoBehaviour
 
 		//m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, -hitNormal * 10f, ref m_Velocity, m_MovementSmoothing);
 
-		float degree = actualAngle + direction;
+		float degree = changedFromLeft || changedFromRight ? (actualAngle - direction) * -1 : actualAngle + direction;
+
+		Debug.Log(degree);
 
 		// degree = Mathf.Repeat(degree, 360); // Faz mesma coisa que degree % 360
 		
@@ -332,7 +319,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void Movement(float move, bool isWall, bool isLeft, bool climbing, bool ceiling)
+	private void Movement(float move, bool isWall)
     {
 		
 		Vector3 targetVelocity;
