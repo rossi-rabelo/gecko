@@ -24,6 +24,8 @@ public class CharacterController2D : MonoBehaviour
 	public bool isTurning = false;
 
 	public Transform wallCheck;
+	public Transform outerWallCheckFront;
+	public Transform outerWallCheckBack;
 	public LayerMask climbable;
 
 	public float lerpSpeed;
@@ -142,6 +144,12 @@ public class CharacterController2D : MonoBehaviour
 				RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, wallCheck.right, 1f, climbable);
 				Debug.DrawRay(wallCheck.position, wallCheck.right * 1f, Color.red);
 
+				RaycastHit2D hitFront = Physics2D.Raycast(outerWallCheckFront.position, -outerWallCheckFront.right, .5f, climbable);
+				Debug.DrawRay(outerWallCheckFront.position, -outerWallCheckFront.right * .5f, Color.red);
+
+				RaycastHit2D hitBack = Physics2D.Raycast(outerWallCheckBack.position, outerWallCheckBack.right, .5f, climbable);
+				Debug.DrawRay(outerWallCheckBack.position, outerWallCheckBack.right * .5f, Color.red);
+
 				if (!m_FacingRight && m_Grounded)
 				{
 					isLeft = true;
@@ -230,7 +238,7 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			Movement(move);
+			Movement(move, crouch);
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
@@ -297,7 +305,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void Movement(float move)
+	private void Movement(float move, bool crouch)
     {
 		
 		Vector2 targetVelocity;
@@ -364,7 +372,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 		*/
 
-		if (isOnWall || climbing)
+		if ((isOnWall || climbing) && crouch)
 		{
 		
 			targetVelocity = new Vector2(0, 0);
@@ -389,7 +397,7 @@ public class CharacterController2D : MonoBehaviour
 		{
 			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
 			float radiandos = (angleNormal - 90) * Mathf.Deg2Rad;
-			float jumpVelocity = jumping ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
+			float jumpVelocity = jumping || (!m_Grounded && !crouch) ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
 			targetVelocity = new Vector2(Mathf.Cos(radiandos) * Math.Abs(move) * 10f, jumpVelocity);
 
 
@@ -398,7 +406,7 @@ public class CharacterController2D : MonoBehaviour
 		{
 			float angleNormal = Mathf.Atan2(playerNormal.y, playerNormal.x) * Mathf.Rad2Deg;
 			float radiandos = (angleNormal + 90) * Mathf.Deg2Rad;
-			float jumpVelocity = jumping ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
+			float jumpVelocity = jumping || (!m_Grounded && !crouch) ? m_Rigidbody2D.velocity.y : Mathf.Sin(radiandos) * Math.Abs(move) * 10f;
 			targetVelocity = new Vector2(Mathf.Cos(radiandos) * Math.Abs(move) * 10f, jumpVelocity);
 
 		}
