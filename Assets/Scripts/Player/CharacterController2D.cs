@@ -31,8 +31,8 @@ public class CharacterController2D : MonoBehaviour
 
 	public float lerpSpeed;
 	public float lerpSpeedMove;
-	private float lerpPercent = 0f;
-	private float lerpPercentMove = 0f;
+	public float lerpPercent = 0f;
+	public float lerpPercentMove = 0f;
 
 	public bool isLeft = false;
 	public bool hitGround = false;
@@ -51,6 +51,9 @@ public class CharacterController2D : MonoBehaviour
 	public Vector2 outerWallNormal;
 	public RaycastHit2D outerWall;
 	public bool isInOuterWall = false;
+	public bool turningInOuterWall = false;
+	public bool degreeInOuterWall = false;
+	public Vector3 newTurningOuterWallPos;
 	private float outerWallBorder = 0f;
 
 	[Header("Events")]
@@ -169,16 +172,10 @@ public class CharacterController2D : MonoBehaviour
 
 				if (hitBack.collider != null)
                 {
-					if (hitFront.collider == null && !isTurning)
+					if (hitFront.collider == null && !isTurning && hit.collider == null)
                     {
 						isTurning = true;
 						isInOuterWall = true;
-
-						var yHalfExtents = outerWall.collider.bounds.extents.y;
-						var yCenter = outerWall.collider.bounds.center.y;
-						float yUpper = yCenter + yHalfExtents;
-
-						outerWallBorder = yUpper;
 
 					} else if (!isTurning)
                     {
@@ -322,6 +319,7 @@ public class CharacterController2D : MonoBehaviour
         {
 			degree = changedFromLeft || changedFromRight ? (actualAngle + direction) * -1 : actualAngle - direction;
 
+			Debug.Log("Degree Out " + degree);
 		}
 		
 		
@@ -333,17 +331,25 @@ public class CharacterController2D : MonoBehaviour
 		
 
 		lerpPercent = Mathf.MoveTowards(lerpPercent, 1f, Time.fixedDeltaTime * lerpSpeed);
-		lerpPercentMove = Mathf.MoveTowards(lerpPercentMove, 1f, Time.fixedDeltaTime * lerpSpeedMove);
+		lerpPercentMove = Mathf.MoveTowards(lerpPercentMove, 1f, Time.fixedDeltaTime * lerpSpeed);
 
 		Quaternion target = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, degree);
 		transform.rotation = Quaternion.Slerp(transform.rotation, target, lerpPercent);
 
-		if (isInOuterWall)
+		if (isInOuterWall && !turningInOuterWall)
 		{
 			var aaa = m_FacingRight ? transform.position.x + (playerNormal.x * -2f) : transform.position.x - (playerNormal.x * 2f);
 			var bbb = m_FacingRight ? transform.position.y + (playerNormal.y * -2f) : transform.position.y - (playerNormal.y * 2f);
 
-			transform.position = Vector3.Lerp(transform.position, new Vector3(aaa, bbb, transform.position.z), lerpPercentMove);
+			turningInOuterWall = true;
+
+			newTurningOuterWallPos = new Vector3(aaa, bbb, transform.position.z);
+
+		}
+
+		if (turningInOuterWall)
+        {
+			transform.position = Vector3.Lerp(transform.position, newTurningOuterWallPos, lerpPercentMove);
 		}
 
 		if (lerpPercent >= 1f)
@@ -353,8 +359,12 @@ public class CharacterController2D : MonoBehaviour
 			playerNormal = isInOuterWall ? outerWallNormal : hitNormal;
 
 			if (isInOuterWall)
-			m_Rigidbody2D.AddForce(playerNormal * -1000f, ForceMode2D.Force);
+            {
+				m_Rigidbody2D.AddForce(playerNormal * -1000f, ForceMode2D.Force);
+			}
 
+			isInOuterWall = false;
+			turningInOuterWall = false;
 		}
 	}
 
